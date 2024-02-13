@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:netfixe/dropdown.dart';
 import 'package:netfixe/movie.dart';
 import 'package:http/http.dart' as http;
 
@@ -86,16 +87,6 @@ class _HomeState extends State<Home> {
                             title: 'Film',
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: ToolBarItem(
-                            title: 'Categories',
-                            icon: Icon(
-                              Icons.keyboard_arrow_down,
-                              color: Color.fromARGB(120, 255, 255, 255),
-                            ),
-                          ),
-                        ),
                       ],
                     ),
                     Row(
@@ -123,19 +114,22 @@ class _HomeState extends State<Home> {
                     ),
                   ],
                 ),
+                const DropDown(),
                 const SizedBox(height: 20),
                 const Text("Film"),
                 const SizedBox(height: 10),
                 GridView.count(
                   shrinkWrap: true,
                   crossAxisCount: 3,
-                  childAspectRatio: 0.4,
+                  childAspectRatio: 0.35,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     if (decodedResponseBody != null)
-                      for (int i = 0; i < 10; i++)
+                      for (int i = 0;
+                          i < decodedResponseBody!['results'].length;
+                          i++)
                         if (decodedResponseBody!['results'].length > i)
                           GestureDetector(
                             onTap: () {
