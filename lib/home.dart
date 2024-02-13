@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:netfixe/movie.dart';
@@ -14,15 +13,14 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Map<String, dynamic>? decodedResponseBody;
-  late String searchValue;
+  final TextEditingController _searchController = TextEditingController();
 
-  void searchMovie() async {
-    log("Searching movie...");
+  void searchMovie(String value) async {
     var headersList = {
       'Accept': '*/*',
     };
     var url = Uri.parse(
-      'https://api.themoviedb.org/3/search/movie?api_key=26a145d058cf4d1b17cbf084ddebedec&query=$searchValue=fr-FR',
+      'https://api.themoviedb.org/3/search/movie?api_key=adc2d6cac42701723c111af5cc9f9d51&query=$value&language=fr-FR',
     );
 
     var req = http.Request('GET', url);
@@ -42,15 +40,8 @@ class _HomeState extends State<Home> {
     }
   }
 
-  void handleClick(String value) {
-    setState(() {
-      searchValue = value;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    searchMovie();
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -109,19 +100,19 @@ class _HomeState extends State<Home> {
                     ),
                     Row(
                       children: [
-                        const SizedBox(
+                        SizedBox(
                           width: 130,
                           height: 35,
                           child: TextField(
-                            onChanged: () => handleClick(value),
-                            decoration: InputDecoration(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
                               hintText: 'Recherche',
                             ),
                           ),
                         ),
                         const SizedBox(width: 10),
                         GestureDetector(
-                          onTap: () => searchMovie(),
+                          onTap: () => searchMovie(_searchController.text),
                           child: const Icon(
                             Icons.search,
                             color: Color.fromARGB(120, 255, 255, 255),
@@ -138,7 +129,7 @@ class _HomeState extends State<Home> {
                 GridView.count(
                   shrinkWrap: true,
                   crossAxisCount: 3,
-                  childAspectRatio: 0.7,
+                  childAspectRatio: 0.4,
                   mainAxisSpacing: 10,
                   crossAxisSpacing: 10,
                   physics: const NeverScrollableScrollPhysics(),
@@ -146,7 +137,23 @@ class _HomeState extends State<Home> {
                     if (decodedResponseBody != null)
                       for (int i = 0; i < 10; i++)
                         if (decodedResponseBody!['results'].length > i)
-                          Movie(dataMovie: decodedResponseBody!['results'][i]),
+                          GestureDetector(
+                            onTap: () {
+                              setState(
+                                () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/movie',
+                                    arguments: decodedResponseBody!['results']
+                                        [i]["id"],
+                                  );
+                                },
+                              );
+                            },
+                            child: Movie(
+                              dataMovie: decodedResponseBody!['results'][i],
+                            ),
+                          ),
                   ],
                 ),
               ],
