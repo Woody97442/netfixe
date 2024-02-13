@@ -14,6 +14,7 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   Map<String, dynamic>? decodedResponseBody;
+  late String searchValue;
 
   void searchMovie() async {
     log("Searching movie...");
@@ -21,7 +22,7 @@ class _HomeState extends State<Home> {
       'Accept': '*/*',
     };
     var url = Uri.parse(
-      'https://api.themoviedb.org/3/search/movie?api_key=26a145d058cf4d1b17cbf084ddebedec&query=harry&language=fr-FR',
+      'https://api.themoviedb.org/3/search/movie?api_key=26a145d058cf4d1b17cbf084ddebedec&query=$searchValue=fr-FR',
     );
 
     var req = http.Request('GET', url);
@@ -36,16 +37,20 @@ class _HomeState extends State<Home> {
           decodedResponseBody = json.decode(resBody);
         },
       );
-
-      var firstResultTitle = decodedResponseBody!['results'][0]['title'];
-      print(firstResultTitle);
     } else {
       print(res.reasonPhrase);
     }
   }
 
+  void handleClick(String value) {
+    setState(() {
+      searchValue = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    searchMovie();
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -68,11 +73,10 @@ class _HomeState extends State<Home> {
           ),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(15.0),
+          padding: const EdgeInsets.all(10.0),
           child: Center(
             child: ListView(
               padding: const EdgeInsets.all(8),
-              scrollDirection: Axis.vertical,
               children: <Widget>[
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -109,6 +113,7 @@ class _HomeState extends State<Home> {
                           width: 130,
                           height: 35,
                           child: TextField(
+                            onChanged: () => handleClick(value),
                             decoration: InputDecoration(
                               hintText: 'Recherche',
                             ),
@@ -130,10 +135,20 @@ class _HomeState extends State<Home> {
                 const SizedBox(height: 20),
                 const Text("Film"),
                 const SizedBox(height: 10),
-                if (decodedResponseBody != null)
-                  for (int i = 0; i < 10; i++)
-                    if (decodedResponseBody!['results'].length > i)
-                      Movie(dataMovie: decodedResponseBody!['results'][i]),
+                GridView.count(
+                  shrinkWrap: true,
+                  crossAxisCount: 3,
+                  childAspectRatio: 0.7,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  physics: const NeverScrollableScrollPhysics(),
+                  children: [
+                    if (decodedResponseBody != null)
+                      for (int i = 0; i < 10; i++)
+                        if (decodedResponseBody!['results'].length > i)
+                          Movie(dataMovie: decodedResponseBody!['results'][i]),
+                  ],
+                ),
               ],
             ),
           ),

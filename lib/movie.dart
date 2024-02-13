@@ -6,11 +6,11 @@ class Movie extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: Colors.grey,
-      width: 100,
-      height: 150,
-      child: Text(dataMovie?['title']),
+    return Image.network(
+      "https://image.tmdb.org/t/p/w185${dataMovie?['poster_path']}",
+      fit: BoxFit.cover,
+      height: 200,
+      width: 150,
     );
   }
 }
