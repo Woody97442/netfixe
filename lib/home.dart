@@ -59,7 +59,7 @@ class _HomeState extends State<Home> {
           centerTitle: true,
           backgroundColor: const Color.fromRGBO(0, 0, 0, 0.2),
           leading: const ImageIcon(
-            AssetImage("img/netflix.png"),
+            AssetImage("assets/img/netflix.png"),
             color: Colors.red,
             size: 24,
           ),
@@ -99,6 +99,7 @@ class _HomeState extends State<Home> {
                             decoration: const InputDecoration(
                               hintText: 'Recherche',
                             ),
+                            onSubmitted: (value) => searchMovie(value),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -114,16 +115,15 @@ class _HomeState extends State<Home> {
                     ),
                   ],
                 ),
-                const DropDown(),
+                // const DropDown(),
                 const SizedBox(height: 20),
                 const Text("Film"),
                 const SizedBox(height: 10),
                 GridView.count(
                   shrinkWrap: true,
-                  crossAxisCount: 3,
-                  childAspectRatio: 0.35,
-                  mainAxisSpacing: 10,
-                  crossAxisSpacing: 10,
+                  crossAxisCount: 2,
+                  childAspectRatio: 0.39,
+                  crossAxisSpacing: 15,
                   physics: const NeverScrollableScrollPhysics(),
                   children: [
                     if (decodedResponseBody != null)

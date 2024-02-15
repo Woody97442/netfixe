@@ -42,14 +42,14 @@ class Movie extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Image.network(
-          "https://image.tmdb.org/t/p/w185${dataMovie?['poster_path']}",
+          "https://image.tmdb.org/t/p/w600_and_h900_bestv2${dataMovie?['poster_path']}",
           fit: BoxFit.cover,
           alignment: Alignment.center,
           height: 300,
         ),
         const SizedBox(height: 15),
         Text("Note : ${dataMovie?['vote_average'].toString()}"),
-        Row(
+        Wrap(
           children: [
             const Text("Genre : "),
             if (dataMovie!['genre_ids'] != 0)

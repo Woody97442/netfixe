@@ -68,7 +68,7 @@ class _MovieViewState extends State<MovieView> {
           centerTitle: true,
           backgroundColor: const Color.fromRGBO(0, 0, 0, 0.2),
           leading: const ImageIcon(
-            AssetImage("img/netflix.png"),
+            AssetImage("assets/img/netflix.png"),
             color: Colors.red,
             size: 24,
           ),
@@ -85,41 +85,44 @@ class _MovieViewState extends State<MovieView> {
             ),
           ],
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              Hero(
-                tag: title,
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 400,
-                  child: Image.network(
-                    "https://image.tmdb.org/t/p/w185$imgUrl",
-                    fit: BoxFit.fill,
-                    alignment: Alignment.center,
+        body: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  Hero(
+                    tag: title,
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: Image.network(
+                        "https://image.tmdb.org/t/p/w600_and_h900_bestv2$imgUrl",
+                        fit: BoxFit.fill,
+                        alignment: Alignment.center,
+                      ),
+                    ),
                   ),
-                ),
+                  const SizedBox(height: 20),
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    desc,
+                    style: const TextStyle(
+                      fontSize: 15,
+                      textBaseline: TextBaseline.alphabetic,
+                    ),
+                  )
+                ],
               ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 25,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 20),
-              Text(
-                desc,
-                style: const TextStyle(
-                  fontSize: 15,
-                  textBaseline: TextBaseline.alphabetic,
-                ),
-              )
-            ],
-          ),
+            ),
+          ],
         ),
         bottomNavigationBar: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -221,7 +224,6 @@ class _MovieViewState extends State<MovieView> {
         ),
       );
     } else {
-      // Gérez le cas où les données sont nulles, par exemple, en affichant un message d'erreur ou en redirigeant l'utilisateur.
       return const Scaffold(
         backgroundColor: Colors.black,
         body: Center(
