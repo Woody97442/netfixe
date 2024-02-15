@@ -177,38 +177,7 @@ class _MovieViewState extends State<MovieView> {
                         size: 24,
                       ),
                       Text(
-                        'Tout nouveau',
-                        style: TextStyle(
-                          color: Color.fromARGB(100, 255, 255, 255),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  // handleClick(context);
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(15.0),
-                height: 80,
-                color: Colors.black,
-                child: const Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.arrow_circle_down_outlined,
-                        color: Color.fromARGB(100, 255, 255, 255),
-                        size: 24,
-                      ),
-                      Text(
-                        'Téléchargements',
+                        'Découvrir',
                         style: TextStyle(
                           color: Color.fromARGB(100, 255, 255, 255),
                           fontSize: 12,
