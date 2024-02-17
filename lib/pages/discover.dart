@@ -13,9 +13,12 @@ class Discover extends StatefulWidget {
 
 class _DiscoverState extends State<Discover> {
   Map<String, dynamic>? decodedResponseBody;
+  final ScrollController _scrollController = ScrollController();
+
+  late int currentPage = 1;
 
   void getTrendingMovie() async {
-    final result = await getMovieSearch("", 'trending/movie/day');
+    final result = await getMovieSearch("", 'trending/movie/day', 1);
     setState(
       () {
         decodedResponseBody = result;
@@ -24,10 +27,28 @@ class _DiscoverState extends State<Discover> {
   }
 
   void getTrendingTv() async {
-    final result = await getMovieSearch("", 'trending/tv/day');
+    final result = await getMovieSearch("", 'trending/tv/day', 1);
     setState(
       () {
         decodedResponseBody = result;
+      },
+    );
+  }
+
+  void getGetNextPage(int page) async {
+    final result = await getMovieSearch("", 'trending/tv/day', page);
+    setState(
+      () {
+        if (decodedResponseBody == null) {
+          // Si decodedResponseBody est null, initialisez-le avec les résultats de la nouvelle page
+          decodedResponseBody = result;
+        } else {
+          // Ajoutez les résultats de la nouvelle page à la suite de decodedResponseBody
+          decodedResponseBody!['results'] = [
+            ...(decodedResponseBody!['results'] as List<dynamic>),
+            ...(result['results'] as List<dynamic>),
+          ];
+        }
       },
     );
   }
@@ -36,6 +57,22 @@ class _DiscoverState extends State<Discover> {
   void initState() {
     super.initState();
     getTrendingMovie();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  // Fonction de rappel pour l'événement de défilement
+  void _scrollListener() {
+    // Vérifiez si vous avez atteint le bas de la liste
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // Exécutez votre fonction ici lorsque vous arrivez en bas de la liste
+      setState(
+        () {
+          currentPage++;
+        },
+      );
+      getGetNextPage(currentPage);
+    }
   }
 
   @override
@@ -51,6 +88,7 @@ class _DiscoverState extends State<Discover> {
           padding: const EdgeInsets.all(10.0),
           child: Center(
             child: ListView(
+              controller: _scrollController,
               padding: const EdgeInsets.all(8),
               children: <Widget>[
                 const Row(
@@ -78,36 +116,39 @@ class _DiscoverState extends State<Discover> {
                 const SizedBox(height: 20),
                 const Text("Nouveauté"),
                 const SizedBox(height: 10),
-                GridView.count(
+                GridView.builder(
                   shrinkWrap: true,
-                  crossAxisCount: 2,
-                  childAspectRatio: 0.39,
-                  crossAxisSpacing: 15,
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 0.39,
+                    crossAxisSpacing: 15,
+                  ),
                   physics: const NeverScrollableScrollPhysics(),
-                  children: [
-                    if (decodedResponseBody != null)
-                      for (int i = 0;
-                          i < decodedResponseBody!['results'].length;
-                          i++)
-                        if (decodedResponseBody!['results'].length > i)
-                          GestureDetector(
-                            onTap: () {
-                              setState(
-                                () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/movie',
-                                    arguments: decodedResponseBody!['results']
-                                        [i]["id"],
-                                  );
-                                },
-                              );
-                            },
-                            child: Movie(
-                              dataMovie: decodedResponseBody!['results'][i],
-                            ),
-                          ),
-                  ],
+                  itemCount: decodedResponseBody?['results'].length ?? 0,
+                  itemBuilder: (BuildContext context, int index) {
+                    if (decodedResponseBody!['results'].length > index &&
+                        decodedResponseBody!['results'][index]['poster_path'] !=
+                            null) {
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            Navigator.pushNamed(
+                              context,
+                              '/movie',
+                              arguments: decodedResponseBody!['results'][index]
+                                  ["id"],
+                            );
+                          });
+                        },
+                        child: Movie(
+                          dataMovie: decodedResponseBody!['results'][index],
+                        ),
+                      );
+                    } else {
+                      return const SizedBox
+                          .shrink(); // Si vous ne souhaitez rien afficher
+                    }
+                  },
                 ),
               ],
             ),

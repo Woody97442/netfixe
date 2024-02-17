@@ -39,7 +39,7 @@ class _MovieViewState extends State<MovieView>
   }
 
   void getDetailMovie(String idMovie) async {
-    final result = await getMovieSearch("", "movie/$idMovie");
+    final result = await getMovieSearch("", "movie/$idMovie", 1);
     setState(
       () {
         dataMovie = result;
@@ -132,6 +132,7 @@ class _MovieViewState extends State<MovieView>
                             ),
                             const SizedBox(height: 20),
                             IframeYoutubeVideo(keyMovie: videoUrl),
+                            const SizedBox(height: 80),
                           ],
                         )
                       : Container(),

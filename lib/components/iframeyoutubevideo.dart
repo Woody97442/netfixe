@@ -19,10 +19,11 @@ class _IframeYoutubeVideoState extends State<IframeYoutubeVideo> {
     final videoID = YoutubePlayer.convertUrlToId(videoURL);
 
     _controller = YoutubePlayerController(
-        initialVideoId: videoID!,
-        flags: const YoutubePlayerFlags(
-          autoPlay: false,
-        ));
+      initialVideoId: videoID!,
+      flags: const YoutubePlayerFlags(
+        autoPlay: false,
+      ),
+    );
     super.initState();
   }
 
