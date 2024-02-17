@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:netfixe/movie.dart';
+import 'package:netfixe/components/footer.dart';
+import 'package:netfixe/components/header.dart';
+import 'package:netfixe/components/movie.dart';
 import 'package:http/http.dart' as http;
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class Discover extends StatefulWidget {
+  const Discover({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Discover> createState() => _DiscoverState();
 }
 
-class _HomeState extends State<Home> {
+class _DiscoverState extends State<Discover> {
   Map<String, dynamic>? decodedResponseBody;
   final TextEditingController _searchController = TextEditingController();
 
@@ -44,23 +46,9 @@ class _HomeState extends State<Home> {
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
-        appBar: AppBar(
-          title: const Text(
-            'NETFIXE',
-            textAlign: TextAlign.start,
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 25,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          centerTitle: true,
-          backgroundColor: const Color.fromRGBO(0, 0, 0, 0.2),
-          leading: const ImageIcon(
-            AssetImage("assets/img/netflix.png"),
-            color: Colors.red,
-            size: 24,
-          ),
+        appBar: const Header(
+          size: 60,
+          activeBack: false,
         ),
         body: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -115,7 +103,7 @@ class _HomeState extends State<Home> {
                 ),
                 // const DropDown(),
                 const SizedBox(height: 20),
-                const Text("Film"),
+                const Text("Nouveauté"),
                 const SizedBox(height: 10),
                 GridView.count(
                   shrinkWrap: true,
@@ -152,72 +140,18 @@ class _HomeState extends State<Home> {
             ),
           ),
         ),
-        bottomNavigationBar: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  // handleClick(context);
-                });
+        bottomNavigationBar: Footer(
+          onTap: (String value) => {
+            setState(
+              () {
+                Navigator.pushNamed(
+                  context,
+                  value,
+                );
               },
-              child: Container(
-                padding: const EdgeInsets.all(15.0),
-                height: 80,
-                color: Colors.black,
-                child: const Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.home,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      Text(
-                        'Accueil',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ),
-            GestureDetector(
-              onTap: () {
-                setState(() {
-                  // handleClick(context);
-                });
-              },
-              child: Container(
-                padding: const EdgeInsets.all(15.0),
-                height: 80,
-                color: Colors.black,
-                child: const Center(
-                  child: Column(
-                    children: [
-                      Icon(
-                        Icons.movie_creation_outlined,
-                        color: Color.fromARGB(100, 255, 255, 255),
-                        size: 24,
-                      ),
-                      Text(
-                        'Découvrir',
-                        style: TextStyle(
-                          color: Color.fromARGB(100, 255, 255, 255),
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
+          },
+          currentPage: '/discover',
         ),
       ),
     );
