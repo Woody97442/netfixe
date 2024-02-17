@@ -145,6 +145,7 @@ class _MovieViewState extends State<MovieView>
                   size: 40,
                 ),
               ),
+              const SizedBox(height: 10),
               const Text("Chargement...."),
             ],
           ),
