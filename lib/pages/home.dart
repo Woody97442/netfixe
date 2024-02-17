@@ -17,12 +17,27 @@ class _HomeState extends State<Home> {
   final TextEditingController _searchController = TextEditingController();
 
   searchMovie(String value) async {
-    final result = await getMovieSearch(value);
+    final result = await getMovieSearch(value, 'search/movie');
     setState(
       () {
         decodedResponseBody = result;
       },
     );
+  }
+
+  getDiscoverMovie() async {
+    final result = await getMovieSearch("", 'discover/movie');
+    setState(
+      () {
+        decodedResponseBody = result;
+      },
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDiscoverMovie();
   }
 
   @override
@@ -100,7 +115,9 @@ class _HomeState extends State<Home> {
                       for (int i = 0;
                           i < decodedResponseBody!['results'].length;
                           i++)
-                        if (decodedResponseBody!['results'].length > i)
+                        if (decodedResponseBody!['results'].length > i &&
+                            decodedResponseBody!['results'][i]['poster_path'] !=
+                                null)
                           GestureDetector(
                             onTap: () {
                               setState(

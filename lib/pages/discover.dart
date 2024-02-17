@@ -1,9 +1,8 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:netfixe/components/footer.dart';
 import 'package:netfixe/components/header.dart';
 import 'package:netfixe/components/movie.dart';
-import 'package:http/http.dart' as http;
+import 'package:netfixe/utils/tool.dart';
 
 class Discover extends StatefulWidget {
   const Discover({super.key});
@@ -14,31 +13,29 @@ class Discover extends StatefulWidget {
 
 class _DiscoverState extends State<Discover> {
   Map<String, dynamic>? decodedResponseBody;
-  final TextEditingController _searchController = TextEditingController();
 
-  void searchMovie(String value) async {
-    var headersList = {
-      'Accept': '*/*',
-    };
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/search/movie?api_key=adc2d6cac42701723c111af5cc9f9d51&query=$value&language=fr-FR',
+  void getTrendingMovie() async {
+    final result = await getMovieSearch("", 'trending/movie/day');
+    setState(
+      () {
+        decodedResponseBody = result;
+      },
     );
+  }
 
-    var req = http.Request('GET', url);
-    req.headers.addAll(headersList);
+  void getTrendingTv() async {
+    final result = await getMovieSearch("", 'trending/tv/day');
+    setState(
+      () {
+        decodedResponseBody = result;
+      },
+    );
+  }
 
-    var res = await req.send();
-    final resBody = await res.stream.bytesToString();
-
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      setState(
-        () {
-          decodedResponseBody = json.decode(resBody);
-        },
-      );
-    } else {
-      print(res.reasonPhrase);
-    }
+  @override
+  void initState() {
+    super.initState();
+    getTrendingMovie();
   }
 
   @override
@@ -56,10 +53,10 @@ class _DiscoverState extends State<Discover> {
             child: ListView(
               padding: const EdgeInsets.all(8),
               children: <Widget>[
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Row(
+                    Row(
                       children: [
                         Padding(
                           padding: EdgeInsets.all(8.0),
@@ -71,30 +68,6 @@ class _DiscoverState extends State<Discover> {
                           padding: EdgeInsets.all(8.0),
                           child: ToolBarItem(
                             title: 'Film',
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 130,
-                          height: 35,
-                          child: TextField(
-                            controller: _searchController,
-                            decoration: const InputDecoration(
-                              hintText: 'Recherche',
-                            ),
-                            onSubmitted: (value) => searchMovie(value),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        GestureDetector(
-                          onTap: () => searchMovie(_searchController.text),
-                          child: const Icon(
-                            Icons.search,
-                            color: Color.fromARGB(120, 255, 255, 255),
-                            size: 24,
                           ),
                         ),
                       ],

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-
 import 'package:netfixe/components/footer.dart';
 import 'package:netfixe/components/header.dart';
+import 'package:netfixe/components/iframeyoutubevideo.dart';
 import 'package:netfixe/customs_icons/spinload.dart';
+import 'package:netfixe/utils/tool.dart';
 
 class MovieView extends StatefulWidget {
   const MovieView({super.key});
@@ -15,7 +14,9 @@ class MovieView extends StatefulWidget {
 
 class _MovieViewState extends State<MovieView>
     with SingleTickerProviderStateMixin {
-  Map<String, dynamic>? data;
+  Map<String, dynamic>? dataMovie;
+  Map<String, dynamic>? dataVideo;
+
   late AnimationController _controller;
 
   @override
@@ -23,51 +24,58 @@ class _MovieViewState extends State<MovieView>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(
-          seconds: 1), // Vous pouvez ajuster la durée de l'animation
-    )..repeat(); // La méthode repeat() fait tourner l'animation en continu
+      duration: const Duration(seconds: 1),
+    )..repeat();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    int? movieData = ModalRoute.of(context)!.settings.arguments as int?;
-    if (movieData != null) {
-      searchImageMovie(movieData.toString());
+    int? idMovie = ModalRoute.of(context)!.settings.arguments as int?;
+    if (idMovie != null) {
+      getDetailMovie(idMovie.toString());
+      getVideo(idMovie.toString());
     }
   }
 
-  void searchImageMovie(String idMovie) async {
-    var headersList = {
-      'Accept': '*/*',
-    };
-    var url = Uri.parse(
-      'https://api.themoviedb.org/3/movie/$idMovie?api_key=adc2d6cac42701723c111af5cc9f9d51&language=fr-FR',
+  void getDetailMovie(String idMovie) async {
+    final result = await getMovieSearch("", "movie/$idMovie");
+    setState(
+      () {
+        dataMovie = result;
+      },
     );
+  }
 
-    var req = http.Request('GET', url);
-    req.headers.addAll(headersList);
+  void getVideo(String idMovie) async {
+    final result = await getVideoWithId("fr-FR", idMovie);
+    setState(
+      () {
+        dataVideo = result;
+      },
+    );
+  }
 
-    var res = await req.send();
-    final resBody = await res.stream.bytesToString();
-
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      setState(
-        () {
-          data = json.decode(resBody);
-        },
-      );
-    } else {
-      print(res.reasonPhrase);
-    }
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    if (data != null) {
-      String title = data!['title'];
-      String imgUrl = data!['poster_path'];
-      String desc = data!['overview'];
+    if (dataMovie != null) {
+      String title = dataMovie!['title'];
+      String imgUrl = dataMovie!['poster_path'];
+      String desc = dataMovie!['overview'];
+
+      // Vérifier si dataVideo est disponible
+      String videoUrl = '';
+      String videoTitle = '';
+      if (dataVideo != null && dataVideo!['results'].isNotEmpty) {
+        videoUrl = dataVideo!['results'][0]['key'];
+        videoTitle = dataVideo!['results'][0]['name'];
+      }
 
       return Scaffold(
         backgroundColor: Colors.black,
@@ -108,7 +116,25 @@ class _MovieViewState extends State<MovieView>
                       fontSize: 15,
                       textBaseline: TextBaseline.alphabetic,
                     ),
-                  )
+                  ),
+                  const SizedBox(height: 50),
+                  // Afficher la partie vidéo uniquement si videoUrl est disponible
+                  videoUrl.isNotEmpty
+                      ? Column(
+                          children: [
+                            Text(
+                              videoTitle,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 20),
+                            IframeYoutubeVideo(keyMovie: videoUrl),
+                          ],
+                        )
+                      : Container(),
                 ],
               ),
             ),
@@ -152,11 +178,5 @@ class _MovieViewState extends State<MovieView>
         ),
       );
     }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
   }
 }
