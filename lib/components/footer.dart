@@ -32,6 +32,17 @@ class Footer extends StatelessWidget {
                 : const Color.fromARGB(100, 255, 255, 255),
           ),
         ),
+        // Search button
+        GestureDetector(
+          onTap: () => onTap('/search'),
+          child: BottomToolbarButton(
+            icon: Icons.search_rounded,
+            text: 'Recherche',
+            color: currentPage == "/search"
+                ? Colors.white
+                : const Color.fromARGB(100, 255, 255, 255),
+          ),
+        ),
       ],
     );
   }

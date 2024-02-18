@@ -4,6 +4,7 @@ import 'package:netfixe/components/header.dart';
 import 'package:netfixe/components/iframeyoutubevideo.dart';
 import 'package:netfixe/customs_icons/spinload.dart';
 import 'package:netfixe/utils/tool.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class MovieView extends StatefulWidget {
   const MovieView({super.key});
@@ -31,15 +32,21 @@ class _MovieViewState extends State<MovieView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    int? idMovie = ModalRoute.of(context)!.settings.arguments as int?;
-    if (idMovie != null) {
-      getDetailMovie(idMovie.toString());
-      getVideo(idMovie.toString());
+    Map<String, dynamic>? arguments =
+        ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+    if (arguments != null) {
+      int? id = arguments['idMovie'] as int?;
+      String? type = arguments['type'] as String?;
+
+      if (id != null && type != null) {
+        getDetail(id.toString(), type);
+        getVideo(id.toString(), type);
+      }
     }
   }
 
-  void getDetailMovie(String idMovie) async {
-    final result = await getMovieSearch("", "movie/$idMovie", 1);
+  void getDetail(String id, String type) async {
+    final result = await findDetail(id, "fr-FR", type);
     setState(
       () {
         dataMovie = result;
@@ -47,8 +54,8 @@ class _MovieViewState extends State<MovieView>
     );
   }
 
-  void getVideo(String idMovie) async {
-    final result = await getVideoWithId("fr-FR", idMovie);
+  void getVideo(String id, String type) async {
+    final result = await getVideoWithId(id, "fr-FR", type);
     setState(
       () {
         dataVideo = result;
@@ -65,9 +72,9 @@ class _MovieViewState extends State<MovieView>
   @override
   Widget build(BuildContext context) {
     if (dataMovie != null) {
-      String title = dataMovie!['title'];
-      String imgUrl = dataMovie!['poster_path'];
-      String desc = dataMovie!['overview'];
+      String title = dataMovie!['title'] ?? '';
+      String imgUrl = dataMovie?['poster_path'] ?? '';
+      String desc = dataMovie?['overview'] ?? '';
 
       // Vérifier si dataVideo est disponible
       String videoUrl = '';
@@ -93,11 +100,13 @@ class _MovieViewState extends State<MovieView>
                     tag: title,
                     child: SizedBox(
                       width: double.infinity,
-                      child: Image.network(
-                        "https://image.tmdb.org/t/p/w600_and_h900_bestv2$imgUrl",
-                        fit: BoxFit.fill,
-                        alignment: Alignment.center,
-                      ),
+                      child: (imgUrl != '')
+                          ? Image.network(
+                              "${dotenv.env["IMG_URL_POSTER"]}$imgUrl",
+                              fit: BoxFit.fill,
+                              alignment: Alignment.center,
+                            )
+                          : Container(),
                     ),
                   ),
                   const SizedBox(height: 20),

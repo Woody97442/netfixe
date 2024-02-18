@@ -5,38 +5,46 @@ import 'package:netfixe/components/footer.dart';
 import 'package:netfixe/components/movie.dart';
 import 'package:netfixe/utils/tool.dart';
 
-class Home extends StatefulWidget {
-  const Home({super.key});
+class Search extends StatefulWidget {
+  const Search({super.key});
 
   @override
-  State<Home> createState() => _HomeState();
+  State<Search> createState() => _SearchState();
 }
 
-class _HomeState extends State<Home> {
+class _SearchState extends State<Search> {
   Map<String, dynamic>? listMovies;
+  final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   late int currentPage = 1;
+  late String currentSearch = "";
   late bool thisMovie = true;
   late bool thisTv = false;
   late String currentType = "movie";
 
-  getTrending() async {
-    final result = await findTrending("day", currentPage, "fr-FR", currentType);
+  search(String search) async {
+    final result =
+        await findAllMovies(search, 'fr-FR', false, currentPage, currentType);
+
     setState(
       () {
         listMovies = result;
+        currentSearch = search;
       },
     );
   }
 
-  void getGetNextPage(int page) async {
-    final result = await findTrending("day", page, "fr-FR", currentType);
+  void getGetNextPage(int page, String search) async {
+    final result =
+        await findAllMovies(search, 'fr-FR', false, currentPage, currentType);
     setState(
       () {
         if (listMovies == null) {
+          // Si listMovies est null, initialisez-le avec les résultats de la nouvelle page
           listMovies = result;
         } else {
+          // Ajoutez les résultats de la nouvelle page à la suite de listMovies
           listMovies!['results'] = [
             ...(listMovies!['results'] as List<dynamic>),
             ...(result['results'] as List<dynamic>),
@@ -49,7 +57,6 @@ class _HomeState extends State<Home> {
   @override
   void initState() {
     super.initState();
-    getTrending();
     _scrollController.addListener(_scrollListener);
   }
 
@@ -71,7 +78,7 @@ class _HomeState extends State<Home> {
           currentPage++;
         },
       );
-      getGetNextPage(currentPage);
+      getGetNextPage(currentPage, currentSearch);
     }
   }
 
@@ -79,9 +86,10 @@ class _HomeState extends State<Home> {
     setState(
       () {
         currentType = type;
+        currentPage = 1;
       },
     );
-    getTrending();
+    search(currentSearch);
   }
 
   @override
@@ -144,15 +152,37 @@ class _HomeState extends State<Home> {
                               isActive: thisTv,
                             ),
                           ),
-                        )
+                        ),
                       ],
-                    )
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 130,
+                          height: 35,
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: const InputDecoration(
+                              hintText: 'Recherche',
+                            ),
+                            onSubmitted: (value) => search(value),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        GestureDetector(
+                          onTap: () => search(_searchController.text),
+                          child: const Icon(
+                            Icons.search,
+                            color: Color.fromARGB(120, 255, 255, 255),
+                            size: 24,
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  "Tendances ${currentType == "movie" ? "Film" : "Séries"}",
-                ),
+                Text(currentType == "movie" ? "Film" : "Séries"),
                 const SizedBox(height: 10),
                 GridView.builder(
                   shrinkWrap: true,
@@ -165,30 +195,27 @@ class _HomeState extends State<Home> {
                   itemCount: listMovies?['results'].length ?? 0,
                   itemBuilder: (BuildContext context, int index) {
                     if (listMovies!['results'].length > index &&
-                        listMovies!['results'][index]['poster_path'] != null) {
+                        listMovies!['results'][index] != null &&
+                        listMovies!['results'][index]["poster_path"] != "") {
                       return GestureDetector(
                         onTap: () {
-                          setState(
-                            () {
-                              Navigator.pushNamed(
-                                context,
-                                '/movie',
-                                arguments: {
-                                  'idMovie': listMovies!['results'][index]
-                                      ['id'],
-                                  'type': currentType
-                                },
-                              );
-                            },
-                          );
+                          setState(() {
+                            Navigator.pushNamed(
+                              context,
+                              '/movie',
+                              arguments: {
+                                'idMovie': listMovies!['results'][index]['id'],
+                                'type': currentType
+                              },
+                            );
+                          });
                         },
                         child: Movie(
                           dataMovie: listMovies!['results'][index],
                         ),
                       );
                     } else {
-                      return const SizedBox
-                          .shrink(); // Si vous ne souhaitez rien afficher
+                      return const SizedBox.shrink();
                     }
                   },
                 ),
@@ -202,7 +229,7 @@ class _HomeState extends State<Home> {
               Navigator.pushNamed(context, value);
             })
           },
-          currentPage: '/',
+          currentPage: '/search',
         ),
       ),
     );

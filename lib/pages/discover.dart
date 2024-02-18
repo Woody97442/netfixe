@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:netfixe/components/footer.dart';
 import 'package:netfixe/components/header.dart';
 import 'package:netfixe/components/movie.dart';
+import 'package:netfixe/components/toptoolbaritem.dart';
 import 'package:netfixe/utils/tool.dart';
 
 class Discover extends StatefulWidget {
@@ -12,40 +13,36 @@ class Discover extends StatefulWidget {
 }
 
 class _DiscoverState extends State<Discover> {
-  Map<String, dynamic>? decodedResponseBody;
+  Map<String, dynamic>? listMovies;
   final ScrollController _scrollController = ScrollController();
 
   late int currentPage = 1;
+  late bool thisMovie = true;
+  late bool thisTv = false;
+  late String currentType = "movie";
 
-  void getTrendingMovie() async {
-    final result = await getMovieSearch("", 'trending/movie/day', 1);
+  void getDiscover() async {
+    final result = await findDiscover(
+        ["18", "12"], "fr-FR", false, currentPage, currentType);
     setState(
       () {
-        decodedResponseBody = result;
+        listMovies = result;
       },
     );
   }
 
-  void getTrendingTv() async {
-    final result = await getMovieSearch("", 'trending/tv/day', 1);
+  void getGetNextPage() async {
+    final result = await findDiscover(
+        ["18", "12"], "fr-FR", false, currentPage, currentType);
     setState(
       () {
-        decodedResponseBody = result;
-      },
-    );
-  }
-
-  void getGetNextPage(int page) async {
-    final result = await getMovieSearch("", 'trending/tv/day', page);
-    setState(
-      () {
-        if (decodedResponseBody == null) {
-          // Si decodedResponseBody est null, initialisez-le avec les résultats de la nouvelle page
-          decodedResponseBody = result;
+        if (listMovies == null) {
+          // Si listMovies est null, initialisez-le avec les résultats de la nouvelle page
+          listMovies = result;
         } else {
-          // Ajoutez les résultats de la nouvelle page à la suite de decodedResponseBody
-          decodedResponseBody!['results'] = [
-            ...(decodedResponseBody!['results'] as List<dynamic>),
+          // Ajoutez les résultats de la nouvelle page à la suite de listMovies
+          listMovies!['results'] = [
+            ...(listMovies!['results'] as List<dynamic>),
             ...(result['results'] as List<dynamic>),
           ];
         }
@@ -56,7 +53,7 @@ class _DiscoverState extends State<Discover> {
   @override
   void initState() {
     super.initState();
-    getTrendingMovie();
+    getDiscover();
     _scrollController.addListener(_scrollListener);
   }
 
@@ -65,14 +62,22 @@ class _DiscoverState extends State<Discover> {
     // Vérifiez si vous avez atteint le bas de la liste
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      // Exécutez votre fonction ici lorsque vous arrivez en bas de la liste
       setState(
         () {
           currentPage++;
         },
       );
-      getGetNextPage(currentPage);
+      getGetNextPage();
     }
+  }
+
+  void changeType(String type) {
+    setState(
+      () {
+        currentType = type;
+      },
+    );
+    getDiscover();
   }
 
   @override
@@ -91,30 +96,58 @@ class _DiscoverState extends State<Discover> {
               controller: _scrollController,
               padding: const EdgeInsets.all(8),
               children: <Widget>[
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
                         Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: ToolBarItem(
-                            title: 'Séries',
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () => {
+                              setState(
+                                () {
+                                  thisMovie = !thisMovie;
+                                  if (thisTv) {
+                                    thisTv = !thisTv;
+                                  }
+                                  changeType("movie");
+                                },
+                              ),
+                            },
+                            child: TopToolBarItem(
+                              title: 'Film',
+                              isActive: thisMovie,
+                            ),
                           ),
                         ),
                         Padding(
-                          padding: EdgeInsets.all(8.0),
-                          child: ToolBarItem(
-                            title: 'Film',
+                          padding: const EdgeInsets.all(8.0),
+                          child: GestureDetector(
+                            onTap: () => {
+                              setState(
+                                () {
+                                  thisTv = !thisTv;
+                                  if (thisMovie) {
+                                    thisMovie = !thisMovie;
+                                  }
+                                  changeType("tv");
+                                },
+                              ),
+                            },
+                            child: TopToolBarItem(
+                              title: 'Séries',
+                              isActive: thisTv,
+                            ),
                           ),
                         ),
                       ],
-                    ),
+                    )
                   ],
                 ),
                 // const DropDown(),
                 const SizedBox(height: 20),
-                const Text("Nouveauté"),
+                Text("Découvert ${currentType == "movie" ? "Film" : "Séries"}"),
                 const SizedBox(height: 10),
                 GridView.builder(
                   shrinkWrap: true,
@@ -124,24 +157,25 @@ class _DiscoverState extends State<Discover> {
                     crossAxisSpacing: 15,
                   ),
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: decodedResponseBody?['results'].length ?? 0,
+                  itemCount: listMovies?['results'].length ?? 0,
                   itemBuilder: (BuildContext context, int index) {
-                    if (decodedResponseBody!['results'].length > index &&
-                        decodedResponseBody!['results'][index]['poster_path'] !=
-                            null) {
+                    if (listMovies!['results'].length > index &&
+                        listMovies!['results'][index]['poster_path'] != null) {
                       return GestureDetector(
                         onTap: () {
                           setState(() {
                             Navigator.pushNamed(
                               context,
                               '/movie',
-                              arguments: decodedResponseBody!['results'][index]
-                                  ["id"],
+                              arguments: {
+                                'idMovie': listMovies!['results'][index]['id'],
+                                'type': currentType
+                              },
                             );
                           });
                         },
                         child: Movie(
-                          dataMovie: decodedResponseBody!['results'][index],
+                          dataMovie: listMovies!['results'][index],
                         ),
                       );
                     } else {

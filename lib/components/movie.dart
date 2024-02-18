@@ -41,12 +41,26 @@ class Movie extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Image.network(
-          "https://image.tmdb.org/t/p/w600_and_h900_bestv2${dataMovie?['poster_path']}",
-          fit: BoxFit.cover,
-          alignment: Alignment.center,
-          height: 300,
-        ),
+        (dataMovie?['poster_path'] != null)
+            ? Image.network(
+                "https://image.tmdb.org/t/p/w600_and_h900_bestv2${dataMovie?['poster_path']}",
+                fit: BoxFit.cover,
+                alignment: Alignment.center,
+                height: 300,
+              )
+            : Container(
+                color: const Color.fromARGB(10, 255, 255, 255),
+                height: 300,
+                width: double.infinity,
+                alignment: Alignment.center,
+                child: Text(
+                  dataMovie?['title'],
+                  style: const TextStyle(
+                    fontSize: 15,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
         const SizedBox(height: 15),
         Text("Note : ${dataMovie?['vote_average'].toString()}"),
         Wrap(

@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:netfixe/pages/discover.dart';
 import 'package:netfixe/pages/home.dart';
 import 'package:netfixe/pages/movieview.dart';
+import 'package:netfixe/pages/search.dart';
 
 void main() async {
   await dotenv.load(fileName: "lib/.env");
@@ -23,6 +24,7 @@ class Main extends StatelessWidget {
         '/': (context) => const Home(),
         '/movie': (context) => const MovieView(),
         '/discover': (context) => const Discover(),
+        '/search': (context) => const Search(),
       },
     );
   }

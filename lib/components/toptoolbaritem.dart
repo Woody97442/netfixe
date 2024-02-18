@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 class TopToolBarItem extends StatelessWidget {
   final String title;
   final Icon? icon;
+  final bool isActive;
 
   const TopToolBarItem({
     super.key,
     required this.title,
     this.icon,
+    required this.isActive,
   });
 
   @override
@@ -18,7 +20,9 @@ class TopToolBarItem extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.black,
         border: Border.all(
-          color: const Color.fromARGB(120, 255, 255, 255),
+          color: isActive
+              ? Colors.white
+              : const Color.fromARGB(120, 255, 255, 255),
           width: 1.0,
           style: BorderStyle.solid,
         ),
@@ -30,8 +34,10 @@ class TopToolBarItem extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              color: Color.fromARGB(120, 255, 255, 255),
+            style: TextStyle(
+              color: isActive
+                  ? Colors.white
+                  : const Color.fromARGB(120, 255, 255, 255),
             ),
           ),
           if (icon != null) icon!,

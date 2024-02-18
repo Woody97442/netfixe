@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
 class IframeYoutubeVideo extends StatefulWidget {
@@ -14,8 +15,7 @@ class _IframeYoutubeVideoState extends State<IframeYoutubeVideo> {
 
   @override
   void initState() {
-    final String key = widget.keyMovie;
-    final videoURL = "https://www.youtube.com/watch?v=$key";
+    final videoURL = "${dotenv.env["YOUTUBE_TRAILER"]}${widget.keyMovie}";
     final videoID = YoutubePlayer.convertUrlToId(videoURL);
 
     _controller = YoutubePlayerController(
@@ -31,7 +31,7 @@ class _IframeYoutubeVideoState extends State<IframeYoutubeVideo> {
   Widget build(BuildContext context) {
     return YoutubePlayer(
       controller: _controller,
-      showVideoProgressIndicator: false,
+      showVideoProgressIndicator: true,
       bottomActions: [
         CurrentPosition(),
         ProgressBar(
