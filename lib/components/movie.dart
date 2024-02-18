@@ -36,6 +36,21 @@ class Movie extends StatelessWidget {
     }
   }
 
+  String convertToFrenchDate(String? englishDate) {
+    if (englishDate == null || englishDate.isEmpty) {
+      return "N/A";
+    }
+
+    // Convertir la date anglaise en objet DateTime
+    DateTime dateTime = DateTime.parse(englishDate);
+
+    // Formater la date en format français
+    String formattedDate =
+        "${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year}";
+
+    return formattedDate;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -74,6 +89,10 @@ class Movie extends StatelessWidget {
                     style: const TextStyle(fontSize: 10),
                   ),
           ],
+        ),
+        Text(
+          "Date : ${convertToFrenchDate(dataMovie?['release_date'])}",
+          style: const TextStyle(fontSize: 13),
         ),
       ],
     );
